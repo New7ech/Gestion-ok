@@ -84,7 +84,7 @@ class ArticleController extends Controller
             $validatedData['image_principale'] = $imagePath;
         }
 
-        $article = Article::create($validatedData);
+        Article::create($validatedData);
 
         return redirect()->route('articles.index')->with('success', 'Article créé avec succès.');
     }

@@ -2,7 +2,7 @@
 @section('contenus')
     <div class="container">
         <div class="page-inner">
-            <h3 class="fw-bold mb-3">STATISTIQUES DES VENTES</h3>
+            <h3 class="fw-bold mb-3">STATISTIQUES DES VENTES..</h3>
             <div class="row">
                 <!-- Diagramme circulaire des statuts de paiement -->
                 <div class="col-md-6">

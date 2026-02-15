@@ -4,94 +4,84 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
-use Illuminate\Http\Request; // Garder pour la méthode index
-use Spatie\Permission\Models\Permission;
+use App\Models\Permission;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionController extends Controller
 {
-    /**
-     * Affiche une liste des permissions.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        // TODO: Ajouter recherche/filtrage si nécessaire
-        $permissions = Permission::latest()->paginate(10);
+        $permissions = Permission::query()
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('permissions.index', compact('permissions'));
     }
 
-    /**
-     * Affiche le formulaire de création d'une nouvelle permission.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
+    public function create(): View
     {
         return view('permissions.create');
     }
 
-    /**
-     * Enregistre une nouvelle permission dans la base de données.
-     *
-     * @param \App\Http\Requests\StorePermissionRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(StorePermissionRequest $request)
+    public function store(StorePermissionRequest $request): RedirectResponse
     {
-        // Le guard_name 'web' est généralement utilisé par défaut par Spatie.
-        // Si vous avez plusieurs guards, vous pourriez vouloir le rendre configurable.
-        Permission::create(['name' => $request->name, 'guard_name' => 'web']);
+        $validated = $request->validated();
 
-        return redirect()->route('permissions.index')
-            ->with('success', 'Permission créée avec succès.');
+        Permission::query()->create([
+            'name' => $validated['name'],
+            'guard_name' => 'web',
+        ]);
+
+        $this->forgetPermissionCache();
+
+        return redirect()
+            ->route('permissions.index')
+            ->with('success', 'Permission creee avec succes.');
     }
 
-    /**
-     * Affiche le formulaire de modification de la permission spécifiée.
-     * (Spatie ne prévoit généralement pas de "voir" une permission seule, mais l'édition oui)
-     *
-     * @param \Spatie\Permission\Models\Permission $permission
-     * @return \Illuminate\View\View
-     */
-    public function edit(Permission $permission)
+    public function edit(Permission $permission): View
     {
         return view('permissions.edit', compact('permission'));
     }
 
-    /**
-     * Met à jour la permission spécifiée dans la base de données.
-     *
-     * @param \App\Http\Requests\UpdatePermissionRequest $request
-     * @param \Spatie\Permission\Models\Permission $permission
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(UpdatePermissionRequest $request, Permission $permission)
+    public function update(UpdatePermissionRequest $request, Permission $permission): RedirectResponse
     {
-        $permission->update(['name' => $request->name]);
+        $validated = $request->validated();
 
-        return redirect()->route('permissions.index')
-            ->with('success', 'Permission mise à jour avec succès.');
+        $permission->update([
+            'name' => $validated['name'],
+            'guard_name' => 'web',
+        ]);
+
+        $this->forgetPermissionCache();
+
+        return redirect()
+            ->route('permissions.index')
+            ->with('success', 'Permission mise a jour avec succes.');
     }
 
-    /**
-     * Supprime la permission spécifiée de la base de données.
-     *
-     * @param \Spatie\Permission\Models\Permission $permission
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy(Permission $permission)
+    public function destroy(Permission $permission): RedirectResponse
     {
-        // Spatie gère la dissociation des rôles lors de la suppression d'une permission.
-        // Il est bon de vérifier si la permission est utilisée par des rôles critiques.
         if ($permission->roles()->count() > 0) {
-             return redirect()->route('permissions.index')
-                ->with('error', 'Impossible de supprimer cette permission car elle est assignée à des rôles.');
+            return redirect()
+                ->route('permissions.index')
+                ->with('error', 'Impossible de supprimer cette permission car elle est assignee a des roles.');
         }
-        $permission->delete();
 
-        return redirect()->route('permissions.index')
-            ->with('success', 'Permission supprimée avec succès.');
+        $permission->delete();
+        $this->forgetPermissionCache();
+
+        return redirect()
+            ->route('permissions.index')
+            ->with('success', 'Permission supprimee avec succes.');
+    }
+
+    private function forgetPermissionCache(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

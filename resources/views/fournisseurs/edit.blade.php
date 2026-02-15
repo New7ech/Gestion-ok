@@ -141,6 +141,27 @@
                         </div>
                     </div>
 
+                    {{-- Champ Photo de profil --}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="photo">Photo de profil (optionnelle)</label>
+                                <input type="file" name="photo" id="photo" class="form-control @error('photo') is-invalid @enderror"
+                                       accept="image/jpeg,image/png,image/jpg,image/gif">
+                                @error('photo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="form-text">Formats acceptés: JPEG, PNG, JPG, GIF. Taille maximale: 50MB</div>
+                                @if($fournisseur->photo)
+                                    <div class="mt-2">
+                                        <img src="{{ $fournisseur->photo_url }}" alt="Photo actuelle de {{ $fournisseur->name }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                                        <div class="mt-1">
+                                            <small class="text-muted">Photo actuelle</small>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Section des actions du formulaire --}}
                     <div class="card-action text-end">
                         <button type="submit" class="btn btn-primary">

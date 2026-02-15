@@ -63,7 +63,7 @@
                     <div class="row">
                         <div class="col-md-3 text-center mb-3">
                             @if($user->photo)
-                                <img src="{{ asset('storage/' . $user->photo) }}" alt="Photo de {{ $user->name }}" id="photoPreview" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img src="{{ $user->photo_url }}" alt="Photo de {{ $user->name }}" id="photoPreview" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
                             @else
                                 <img src="{{ asset('assets/img/profile.jpg') }}" alt="Avatar par défaut" id="photoPreview" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                             @endif
@@ -234,7 +234,7 @@
                 // Si aucun fichier n'est sélectionné (par exemple, l'utilisateur annule la sélection),
                 // réafficher la photo actuelle de l'utilisateur ou l'avatar par défaut.
                 // Cela suppose que $user->photo contient le chemin de la photo actuelle ou est null.
-                photoPreview.src = "{{ $user->photo ? asset('storage/' . $user->photo) : asset('assets/img/profile.jpg') }}";
+                photoPreview.src = "{{ $user->photo_url }}";
             }
         });
     }

@@ -9,7 +9,7 @@
     />
     <link
       rel="icon"
-      href="{{ asset('assets/img/kaiadmin/favicon..ico') }}"
+      href="{{ asset('assets/img/kaiadmin/favicon.ico') }}"
       type="image/x-icon"
     />
     <!-- Fonts and icons -->
@@ -40,6 +40,8 @@
     <!-- CSS Just for demo purpose, dont include it in your project -->
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
 
+    @stack('styles')
+
 
 
   </head>
@@ -61,7 +63,7 @@
           <!-- End Navbar -->
         </div>
 
-        <div class="container">
+        <div class="container" style="margin-top: 20px;">
           <div class="page-inner">
             @yield('contenus')
           </div>
@@ -99,6 +101,84 @@
 
     <!-- Sweet Alert -->
     <script src="{{ asset('assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+    <script>
+      // Bridge SweetAlert v1 (`swal`) to the v2-like API used in views (`Swal.fire`).
+      // This keeps existing confirm flows functional without rewriting every page script.
+      window.Swal = window.Swal || {};
+
+      if (typeof window.Swal.fire !== 'function') {
+        window.Swal.fire = function (optionsOrTitle, text, icon) {
+          const options = (typeof optionsOrTitle === 'object' && optionsOrTitle !== null)
+            ? optionsOrTitle
+            : { title: optionsOrTitle, text: text, icon: icon };
+
+          if (typeof window.swal === 'function') {
+            let message = options.text || '';
+            let icon = options.icon || undefined;
+            if (icon === 'question') {
+              icon = 'info';
+            }
+            if (!message && options.html) {
+              const tmp = document.createElement('div');
+              tmp.innerHTML = options.html;
+              message = tmp.textContent || tmp.innerText || '';
+            }
+
+            const buttons = options.showCancelButton
+              ? {
+                  cancel: {
+                    text: options.cancelButtonText || 'Annuler',
+                    value: false,
+                    visible: true,
+                  },
+                  confirm: {
+                    text: options.confirmButtonText || 'OK',
+                    value: true,
+                    visible: true,
+                  },
+                }
+              : {
+                  confirm: {
+                    text: options.confirmButtonText || 'OK',
+                    value: true,
+                    visible: true,
+                  },
+                };
+
+            return window.swal({
+              title: options.title || '',
+              text: message,
+              icon: icon,
+              buttons: buttons,
+              dangerMode: options.icon === 'warning',
+            }).then(function (value) {
+              return {
+                isConfirmed: Boolean(value),
+                isDismissed: !value,
+                value: value,
+              };
+            });
+          }
+
+          const fallbackMessage = options.text || options.title || 'Confirmer cette action ?';
+          const confirmed = window.confirm(fallbackMessage);
+          return Promise.resolve({
+            isConfirmed: confirmed,
+            isDismissed: !confirmed,
+            value: confirmed,
+          });
+        };
+      }
+    </script>
+
+    <!-- Kaiadmin CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}">
+    
+    <!-- Custom CSS for article images -->
+    <link rel="stylesheet" href="{{ asset('css/article-images.css') }}">
+    
+    <!-- Enhanced Dashboard CSS -->
+    <link rel="stylesheet" href="{{ asset('css/dashboard-enhanced.css') }}">
 
     <!-- Kaiadmin JS -->
     <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>
@@ -122,8 +202,8 @@
           form.addEventListener('submit', event => {
             // Si le formulaire n'est pas valide selon les règles HTML5 et Bootstrap.
             if (!form.checkValidity()) {
-              event.preventDefault() // Empêche la soumission du formulaire.
-              event.stopPropagation() // Arrête la propagation de l'événement.
+              event.preventDefault() // Empêcher la soumission du formulaire.
+              event.stopPropagation() // Arrêter la propagation de l'événement.
             }
             // Ajoute la classe 'was-validated' pour afficher les messages de validation.
             form.classList.add('was-validated')
@@ -150,7 +230,7 @@
       }
 
       // Exemple de graphique Sparkline 2
-      if ($("#lineChart2").length) { // Vérifie si l'élément existe avant d'initialiser
+      if ($("#lineChart2").length) { // VÃ©rifie si l'Ã©lÃ©ment existe avant d'initialiser
         $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
           type: "line",
           height: "70",
@@ -162,7 +242,7 @@
       }
 
       // Exemple de graphique Sparkline 3
-      if ($("#lineChart3").length) { // Vérifie si l'élément existe avant d'initialiser
+      if ($("#lineChart3").length) { // VÃ©rifie si l'Ã©lÃ©ment existe avant d'initialiser
         $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
           type: "line",
           height: "70",
@@ -174,9 +254,10 @@
       }
     </script>
 
-    {{-- Empilement pour les scripts spécifiques à chaque page --}}
+    {{-- Empilement pour les scripts spÃ©cifiques Ã  chaque page --}}
     {{-- Les vues enfants peuvent pousser des scripts ici en utilisant @push('scripts') --}}
     @stack('scripts')
 
   </body>
 </html>
+

@@ -2,153 +2,130 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\Accueil;
-use App\Models\Article;
 use App\Models\Facture;
+use App\Models\Article;
 use App\Models\Fournisseur;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAccueilRequest;
-use App\Http\Requests\UpdateAccueilRequest;
+use App\Models\User;
+use App\Models\Categorie;
+use Carbon\Carbon;
 
 class AccueilController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-public function index()
-{
-    // Récupérer toutes les factures
-    $factures = Facture::all();
+    public function index()
+    {
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
 
-    // Calculer le nombre total de factures
-    $nombreFactures = $factures->count();
+        // Statistiques des factures
+        $nombreFactures = Facture::query()->count();
 
-    // Calculer le montant total des factures
-    // $montantTotal = $factures->sum('montant_ttc');
+        $montantTotal = Facture::query()
+            ->whereBetween('date_facture', [$startOfMonth, $endOfMonth])
+            ->sum('montant_ttc');
 
-    // Calculer le montant total des factures par mois
-    $montantTotal = $factures->filter(function ($facture) {
-        $dateFacture = Carbon::parse($facture->date_facture);
-        return $dateFacture->year == now()->year && $dateFacture->month == now()->month;
-    })->sum('montant_ttc');
+        $nombreFacturesPayees = Facture::query()
+            ->where('statut_paiement', Facture::STATUS_PAYEE)
+            ->count();
 
-    // Calculer le nombre de factures payées
-    $nombreFacturesPayees = $factures->where('statut_paiement', 'payé')->count();
+        $nombreFacturesImpayees = Facture::query()
+            ->where('statut_paiement', Facture::STATUS_IMPAYEE)
+            ->count();
 
-    // Calculer le nombre de factures impayées
-    $nombreFacturesImpayees = $factures->where('statut_paiement', 'impayé')->count();
+        $montantImpayes = Facture::query()
+            ->where('statut_paiement', Facture::STATUS_IMPAYEE)
+            ->sum('montant_ttc');
 
-    // Calculer le montant total des factures impayées
-    $montantImpayes = $factures->where('statut_paiement', 'impayé')->sum('montant_ttc');
+        $nombreFacturesMoisCourant = Facture::query()
+            ->whereBetween('date_facture', [$startOfMonth, $endOfMonth])
+            ->count();
 
-    // Calculer le nombre de factures pour le mois courant
-    $nombreFacturesMoisCourant = $factures->filter(function ($facture) {
-        $dateFacture = Carbon::parse($facture->date_facture);
-        return $dateFacture->year == now()->year && $dateFacture->month == now()->month;
-    })->count();
+        $montantCarte = Facture::query()->where('mode_paiement', 'carte')->sum('montant_ttc');
+        $montantCheque = Facture::query()->where('mode_paiement', 'chèque')->sum('montant_ttc');
+        $montantEspeces = Facture::query()->where('mode_paiement', 'espèces')->sum('montant_ttc');
 
-    // Calculer le montant total par mode de paiement
-    $montantCarte = $factures->where('mode_paiement', 'carte')->sum('montant_ttc');
-    $montantCheque = $factures->where('mode_paiement', 'chèque')->sum('montant_ttc');
-    $montantEspeces = $factures->where('mode_paiement', 'espèces')->sum('montant_ttc');
+        // Statistiques supplémentaires
+        $nombreArticles = Article::query()->count();
+        $nombreFournisseurs = Fournisseur::query()->count();
+        $nombreUtilisateurs = User::query()->count();
+        $nombreCategories = Categorie::query()->count();
 
-    // Récupérer les factures impayées
-    $facturesImpayees = $factures->where('statut_paiement', 'impayé');
+        $facturesImpayees = Facture::query()
+            ->where('statut_paiement', Facture::STATUS_IMPAYEE)
+            ->latest('date_facture')
+            ->get();
 
-    // Récupérer les factures récentes (par exemple, les 10 dernières)
-    $facturesRecentes = $factures->sortByDesc(function ($facture) {
-        return Carbon::parse($facture->date_facture);
-    })->take(10);
+        $facturesRecentes = Facture::query()
+            ->latest('date_facture')
+            ->limit(10)
+            ->get();
 
-    // Calculer les données pour le graphique d'évolution des impayés
-    $labels = [];
-    $data = [];
-    for ($i = 1; $i <= 12; $i++) {
-        $labels[] = date('M', mktime(0, 0, 0, $i, 1));
-        $data[] = $factures->filter(function ($facture) use ($i) {
-            $dateFacture = Carbon::parse($facture->date_facture);
-            return $dateFacture->month == $i && $facture->statut_paiement == 'impayé';
-        })->sum('montant_ttc');
+        // Données pour les graphiques
+        $driver = Facture::query()->getConnection()->getDriverName();
+        $monthExpression = $driver === 'sqlite'
+            ? "CAST(strftime('%m', date_facture) AS INTEGER)"
+            : 'MONTH(date_facture)';
+
+        $totauxImpayesParMois = Facture::query()
+            ->selectRaw($monthExpression . ' as mois, SUM(montant_ttc) as total')
+            ->whereYear('date_facture', $now->year)
+            ->where('statut_paiement', Facture::STATUS_IMPAYEE)
+            ->groupByRaw($monthExpression)
+            ->pluck('total', 'mois');
+
+        // Données pour graphique des modes de paiement
+        $paiementModes = Facture::query()
+            ->selectRaw('mode_paiement, COUNT(*) as count, SUM(montant_ttc) as total')
+            ->whereBetween('date_facture', [$startOfMonth, $endOfMonth])
+            ->groupBy('mode_paiement')
+            ->get();
+
+        // Données pour graphique des articles par catégorie
+        $articlesParCategorie = Article::query()
+            ->join('categories', 'articles.category_id', '=', 'categories.id')
+            ->selectRaw('categories.name as category, COUNT(*) as count')
+            ->groupBy('categories.name')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->get();
+
+        // Données pour graphique des fournisseurs actifs
+        $fournisseursActifs = Fournisseur::query()
+            ->withCount('articles')
+            ->orderByDesc('articles_count')
+            ->limit(5)
+            ->get();
+
+        $labels = [];
+        $data = [];
+
+        for ($month = 1; $month <= 12; $month++) {
+            $labels[] = Carbon::create($now->year, $month, 1)->translatedFormat('M');
+            $data[] = (float) ($totauxImpayesParMois[$month] ?? 0);
+        }
+
+        return view('welcome', compact(
+            'nombreFactures',
+            'montantTotal',
+            'nombreFacturesPayees',
+            'nombreFacturesImpayees',
+            'montantImpayes',
+            'nombreFacturesMoisCourant',
+            'montantCarte',
+            'montantCheque',
+            'montantEspeces',
+            'nombreArticles',
+            'nombreFournisseurs',
+            'nombreUtilisateurs',
+            'nombreCategories',
+            'facturesImpayees',
+            'facturesRecentes',
+            'paiementModes',
+            'articlesParCategorie',
+            'fournisseursActifs',
+            'labels',
+            'data'
+        ));
     }
-
-    // Passer les variables à la vue
-    return view('welcome', compact(
-        'nombreFactures',
-        'montantTotal',
-        'nombreFacturesPayees',
-        'nombreFacturesImpayees',
-        'montantImpayes',
-        'nombreFacturesMoisCourant',
-        'montantCarte',
-        'montantCheque',
-        'montantEspeces',
-        'facturesImpayees',
-        'facturesRecentes',
-        'labels',
-        'data'
-    ));
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAccueilRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Accueil $accueil)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Accueil $accueil)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAccueilRequest $request, Accueil $accueil)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Accueil $accueil)
-    {
-        //
-    }
-}

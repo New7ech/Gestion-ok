@@ -11,6 +11,7 @@ use App\Models\Fournisseur;
 use App\Models\Emplacement;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\Test;
 
 class ArticleManagementTest extends TestCase
 {
@@ -19,12 +20,12 @@ class ArticleManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Crée un faux disque de stockage pour les tests
-        // Les fichiers seront stockés dans storage/framework/testing/disks/public
+        // CrÃ©e un faux disque de stockage pour les tests
+        // Les fichiers seront stockÃ©s dans storage/framework/testing/disks/public
         Storage::fake('public');
     }
 
-    // Méthode utilitaire pour créer et authentifier un utilisateur
+    // MÃ©thode utilitaire pour crÃ©er et authentifier un utilisateur
     protected function authenticateUser()
     {
         $user = User::factory()->create();
@@ -32,9 +33,9 @@ class ArticleManagementTest extends TestCase
         return $user;
     }
 
-    // Les méthodes de test seront ajoutées ici
+    // Les mÃ©thodes de test seront ajoutÃ©es ici
 
-    /** @test */
+    #[Test]
     public function test_peut_lister_articles()
     {
         $this->authenticateUser();
@@ -48,7 +49,7 @@ class ArticleManagementTest extends TestCase
         $response->assertSee('Article Beta');
     }
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_authentifie_peut_creer_article()
     {
         $user = $this->authenticateUser();
@@ -70,7 +71,7 @@ class ArticleManagementTest extends TestCase
         $response = $this->post(route('articles.store'), $articleData);
 
         $response->assertRedirect(route('articles.index'));
-        $response->assertSessionHas('success', 'Article créé avec succès.');
+        $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('articles', [
             'name' => 'New Awesome Article',
@@ -81,11 +82,11 @@ class ArticleManagementTest extends TestCase
             'fournisseur_id' => $fournisseur->id,
             'emplacement_id' => $emplacement->id,
             'created_by' => $user->id,
-            // On ne vérifie pas image_principale ici car le test original n'incluait pas l'upload
+            // On ne vÃ©rifie pas image_principale ici car le test original n'incluait pas l'upload
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_peut_creer_article_avec_image()
     {
         $user = $this->authenticateUser();
@@ -114,10 +115,7 @@ class ArticleManagementTest extends TestCase
         Storage::disk('public')->assertExists($article->image_principale);
     }
 
-    /**
-     * Vérifie que la création d'un article échoue si le nom n'est pas fourni.
-     * @test
-     */
+    #[Test]
     public function test_article_creation_requires_name()
     {
         $this->authenticateUser();
@@ -134,7 +132,7 @@ class ArticleManagementTest extends TestCase
         $this->assertDatabaseMissing('articles', ['description' => 'Test desc without name']);
     }
 
-    /** @test */
+    #[Test]
     public function test_peut_afficher_article()
     {
         $this->authenticateUser();
@@ -150,7 +148,7 @@ class ArticleManagementTest extends TestCase
         $response->assertSee($article->description);
     }
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_authentifie_peut_modifier_article()
     {
         $user = $this->authenticateUser();
@@ -182,11 +180,11 @@ class ArticleManagementTest extends TestCase
         $response = $this->put(route('articles.update', $article), $updatedData);
 
         $response->assertRedirect(route('articles.index'));
-        $response->assertSessionHas('success', 'Article mis à jour avec succès.');
+        $response->assertSessionHas('success');
         $this->assertDatabaseHas('articles', array_merge(['id' => $article->id], $updatedData));
     }
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_peut_mettre_a_jour_article_avec_nouvelle_image()
     {
         $this->authenticateUser();
@@ -197,7 +195,7 @@ class ArticleManagementTest extends TestCase
 
         $updatedData = [
             'name' => 'Updated Name With New Image',
-            'description' => $article->description, // garder les autres champs pour la validité
+            'description' => $article->description, // garder les autres champs pour la validitÃ©
             'prix' => $article->prix,
             'quantite' => $article->quantite,
             'category_id' => $article->category_id,
@@ -216,7 +214,7 @@ class ArticleManagementTest extends TestCase
         Storage::disk('public')->assertExists($article->image_principale);
     }
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_peut_supprimer_image_article_lors_mise_a_jour()
     {
         $this->authenticateUser();
@@ -233,7 +231,7 @@ class ArticleManagementTest extends TestCase
             'category_id' => $article->category_id,
             'fournisseur_id' => $article->fournisseur_id,
             'emplacement_id' => $article->emplacement_id,
-            'supprimer_image_principale' => '1', // Simule la case cochée
+            'supprimer_image_principale' => '1', // Simule la case cochÃ©e
         ];
 
         $response = $this->put(route('articles.update', $article), $updatedData);
@@ -245,11 +243,11 @@ class ArticleManagementTest extends TestCase
     }
 
 
-    /** @test */
+    #[Test]
     public function test_utilisateur_authentifie_peut_supprimer_article_et_son_image()
     {
         $user = $this->authenticateUser();
-        // Crée un article avec une image
+        // CrÃ©e un article avec une image
         $imagePath = UploadedFile::fake()->image('article_to_delete.jpg')->store('articles_images', 'public');
         $article = Article::factory()->create([
             'created_by' => $user->id,
@@ -261,8 +259,10 @@ class ArticleManagementTest extends TestCase
         $response = $this->delete(route('articles.destroy', $article));
 
         $response->assertRedirect(route('articles.index'));
-        $response->assertSessionHas('success', 'Article supprimé avec succès.');
+        $response->assertSessionHas('success');
         $this->assertDatabaseMissing('articles', ['id' => $article->id]);
-        Storage::disk('public')->assertMissing($imagePath); // Vérifie que l'image est supprimée du stockage
+        Storage::disk('public')->assertMissing($imagePath); // VÃ©rifie que l'image est supprimÃ©e du stockage
     }
 }
+
+

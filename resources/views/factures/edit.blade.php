@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 {{-- Section pour le titre de la page --}}
-@section('title', "Modifier la Facture N° " . ($facture->numero ?? $facture->id))
+@section('title', "Modifier la Facture NÂ° " . ($facture->numero ?? $facture->id))
 
 {{-- Section pour le contenu principal de la page --}}
 @section('contenus')
 
-{{-- En-tête de la page avec titre et fil d'Ariane --}}
+{{-- En-tÃªte de la page avec titre et fil d'Ariane --}}
 <div class="page-header">
     <h3 class="fw-bold mb-3">Gestion des Factures</h3>
     <ul class="breadcrumbs mb-3">
@@ -25,7 +25,7 @@
             <i class="icon-arrow-right"></i>
         </li>
         <li class="nav-item">
-            <a href="#">Modifier Facture N° {{ $facture->numero ?? $facture->id }}</a>
+            <a href="#">Modifier Facture NÂ° {{ $facture->numero ?? $facture->id }}</a>
         </li>
     </ul>
 </div>
@@ -37,10 +37,10 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title">Formulaire de Modification de Facture</div>
-                <div class="card-category">Modifiez les informations de la facture N° <strong>{{ $facture->numero ?? $facture->id }}</strong>.</div>
+                <div class="card-category">Modifiez les informations de la facture NÂ° <strong>{{ $facture->numero ?? $facture->id }}</strong>.</div>
             </div>
             <div class="card-body">
-                {{-- Affichage des erreurs de validation générales --}}
+                {{-- Affichage des erreurs de validation gÃ©nÃ©rales --}}
                 @if ($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <strong>Erreur !</strong> Veuillez corriger les erreurs ci-dessous.
@@ -58,9 +58,9 @@
                     @csrf
                     @method('PUT')
 
-                    {{-- Section Informations Client (non modifiable ici, généralement) --}}
-                    {{-- Si la modification des infos client est souhaitée sur la facture, décommenter et adapter --}}
-                    <h4 class="mt-3 mb-3">Informations du Client (Référence)</h4>
+                    {{-- Section Informations Client (non modifiable ici, gÃ©nÃ©ralement) --}}
+                    {{-- Si la modification des infos client est souhaitÃ©e sur la facture, dÃ©commenter et adapter --}}
+                    <h4 class="mt-3 mb-3">Informations du Client (RÃ©fÃ©rence)</h4>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group form-group-default">
@@ -71,14 +71,14 @@
                         </div>
                          <div class="col-md-4">
                             <div class="form-group form-group-default">
-                                <label>Prénom du client</label>
+                                <label>PrÃ©nom du client</label>
                                 <p class="form-control-static">{{ $facture->client_prenom ?? 'N/A' }}</p>
                                  <input type="hidden" name="client_prenom" value="{{ $facture->client_prenom }}">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group form-group-default">
-                                <label>Téléphone</label>
+                                <label>TÃ©lÃ©phone</label>
                                 <p class="form-control-static">{{ $facture->client_telephone ?? 'N/A' }}</p>
                                 <input type="hidden" name="client_telephone" value="{{ $facture->client_telephone }}">
                             </div>
@@ -108,12 +108,11 @@
                         {{-- Boucle pour afficher les articles existants de la facture --}}
                         @foreach($facture->articles as $idx => $articleFacture)
                         <div class="row mb-3 article-row align-items-center">
-                            <input type="hidden" name="articles[{{ $idx }}][id]" value="{{ $articleFacture->pivot->id }}"> {{-- Pour identifier la ligne existante --}}
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label class="form-label visually-hidden">Article <span class="text-danger">*</span></label>
                                     <select name="articles[{{ $idx }}][article_id]" class="form-select article-select" required>
-                                        <option value="" data-prix="0" data-stock="0">-- Sélectionner un article --</option>
+                                        <option value="" data-prix="0" data-stock="0">-- SÃ©lectionner un article --</option>
                                         @foreach($articles as $articleOption)
                                             <option value="{{ $articleOption->id }}"
                                                     data-prix="{{ $articleOption->prix }}"
@@ -123,7 +122,7 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <div class="invalid-feedback">Veuillez sélectionner un article.</div>
+                                    <div class="invalid-feedback">Veuillez sÃ©lectionner un article.</div>
                                 </div>
                             </div>
                              <div class="col-md-3">
@@ -134,10 +133,10 @@
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <label class="form-label visually-hidden">Quantité <span class="text-danger">*</span></label>
+                                    <label class="form-label visually-hidden">QuantitÃ© <span class="text-danger">*</span></label>
                                     <input type="number" name="articles[{{ $idx }}][quantity]" class="form-control quantity-input"
                                            min="1" required value="{{ $articleFacture->pivot->quantite }}">
-                                    <div class="invalid-feedback">La quantité est requise (min 1).</div>
+                                    <div class="invalid-feedback">La quantitÃ© est requise (min 1).</div>
                                      <small class="form-text text-muted stock-info"></small>
                                 </div>
                             </div>
@@ -158,8 +157,8 @@
                     </div>
 
                     <hr>
-                    {{-- Section Récapitulatif --}}
-                    <h4 class="mt-4 mb-3">Récapitulatif de la Facture</h4>
+                    {{-- Section RÃ©capitulatif --}}
+                    <h4 class="mt-4 mb-3">RÃ©capitulatif de la Facture</h4>
                      <div class="row p-3 rounded mb-4" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
                         <div class="col-md-4">
                             <p class="mb-1">Montant HT Total:</p>
@@ -174,7 +173,7 @@
                             <h5 class="fw-bold text-primary"><span id="montantTTC">0.00</span> FCFA</h5>
                         </div>
                     </div>
-                    {{-- Champs cachés pour stocker les totaux calculés --}}
+                    {{-- Champs cachÃ©s pour stocker les totaux calculÃ©s --}}
                     <input type="hidden" name="montant_ht" id="inputMontantHT" value="{{ old('montant_ht', $facture->montant_ht) }}">
                     <input type="hidden" name="montant_ttc" id="inputMontantTTC" value="{{ old('montant_ttc', $facture->montant_ttc) }}">
                     <input type="hidden" name="tva" id="inputTVA" value="{{ old('tva', $facture->tva ?? 18) }}">
@@ -187,10 +186,10 @@
                             <div class="form-group">
                                 <label for="mode_paiement">Mode de paiement</label>
                                 <select name="mode_paiement" id="mode_paiement" class="form-select @error('mode_paiement') is-invalid @enderror">
-                                    <option value="">-- Sélectionner --</option>
+                                    <option value="">-- SÃ©lectionner --</option>
                                     <option value="carte" {{ old('mode_paiement', $facture->mode_paiement) == 'carte' ? 'selected' : '' }}>Carte Bancaire</option>
-                                    <option value="chèque" {{ old('mode_paiement', $facture->mode_paiement) == 'chèque' ? 'selected' : '' }}>Chèque</option>
-                                    <option value="espèces" {{ old('mode_paiement', $facture->mode_paiement) == 'espèces' ? 'selected' : '' }}>Espèces</option>
+                                    <option value="chÃ¨que" {{ old('mode_paiement', $facture->mode_paiement) == 'chÃ¨que' ? 'selected' : '' }}>ChÃ¨que</option>
+                                    <option value="espÃ¨ces" {{ old('mode_paiement', $facture->mode_paiement) == 'espÃ¨ces' ? 'selected' : '' }}>EspÃ¨ces</option>
                                     <option value="virement" {{ old('mode_paiement', $facture->mode_paiement) == 'virement' ? 'selected' : '' }}>Virement Bancaire</option>
                                 </select>
                                 @error('mode_paiement') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -212,7 +211,7 @@
                     {{-- Actions du formulaire --}}
                     <div class="card-action text-end mt-4">
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-save"></i> Mettre à Jour la Facture
+                            <i class="fas fa-save"></i> Mettre Ã  Jour la Facture
                         </button>
                         <a href="{{ route('factures.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Annuler
@@ -225,20 +224,20 @@
 </div>
 @endsection
 
-{{-- Section pour les scripts JavaScript spécifiques à cette page --}}
+{{-- Section pour les scripts JavaScript spÃ©cifiques Ã  cette page --}}
 @push('scripts')
 <script>
-// Le script est identique à celui de factures/create.blade.php
-// avec l'initialisation de `articleIndex` adaptée pour la modification.
+// Le script est identique Ã  celui de factures/create.blade.php
+// avec l'initialisation de `articleIndex` adaptÃ©e pour la modification.
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialise articleIndex en fonction du nombre d'articles existants ou des données 'old'
+    // Initialise articleIndex en fonction du nombre d'articles existants ou des donnÃ©es 'old'
     let articleIndex = {{ old('articles') ? count(old('articles')) : $facture->articles->count() }};
     const articlesContainer = document.getElementById('articles-container');
     const addArticleButton = document.getElementById('addArticleBtn');
     const submitFactureButton = document.getElementById('submitBtn');
     const factureForm = document.getElementById('factureForm');
 
-    const TAUX_TVA = {{ ($facture->tva ?? 18) / 100 }}; // Utilise la TVA de la facture ou 18% par défaut
+    const TAUX_TVA = {{ ($facture->tva ?? 18) / 100 }}; // Utilise la TVA de la facture ou 18% par dÃ©faut
 
     function updateTotals() {
         let totalHT = 0;
@@ -249,21 +248,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const quantityInput = row.querySelector('.quantity-input');
             const stockInfo = row.querySelector('.stock-info');
             const prixArticle = parseFloat(articleSelect.selectedOptions[0]?.dataset.prix || 0);
-            // Pour la modification, le stock disponible doit être le stock actuel + la quantité déjà sur cette facture pour cet article
-            const currentQuantityOnInvoice = parseInt(quantityInput.defaultValue || 0); // Quantité initiale de la ligne
+            // Pour la modification, le stock disponible doit Ãªtre le stock actuel + la quantitÃ© dÃ©jÃ  sur cette facture pour cet article
+            const currentQuantityOnInvoice = parseInt(quantityInput.defaultValue || 0); // QuantitÃ© initiale de la ligne
             const selectedArticleId = articleSelect.value;
             let stockDisponible = parseInt(articleSelect.selectedOptions[0]?.dataset.stock || 0);
 
             // Ajustement du stock pour la modification:
-            // Si l'article sélectionné est le même que celui initialement sur cette ligne de facture,
-            // on ajoute la quantité initialement facturée au stock affiché comme disponible.
-            // Ceci est une simplification; une gestion de stock plus complexe pourrait être nécessaire
-            // pour refléter le stock "réel" moins ce qui est sur *d'autres* factures.
-            // Pour l'instant, on se concentre sur la validation de cette ligne par rapport au stock affiché.
+            // Si l'article sÃ©lectionnÃ© est le mÃªme que celui initialement sur cette ligne de facture,
+            // on ajoute la quantitÃ© initialement facturÃ©e au stock affichÃ© comme disponible.
+            // Ceci est une simplification; une gestion de stock plus complexe pourrait Ãªtre nÃ©cessaire
+            // pour reflÃ©ter le stock "rÃ©el" moins ce qui est sur *d'autres* factures.
+            // Pour l'instant, on se concentre sur la validation de cette ligne par rapport au stock affichÃ©.
             // Note: $articleFacture->id (PHP) vs articleOption.id (JS) pour l'article initial de la ligne
             // Il faudrait passer l'ID initial de l'article de la ligne au JS pour une comparaison fiable.
             // Pour cette version, on prend le stock tel quel.
-            // Une meilleure approche serait de recalculer le stock disponible côté serveur et de le passer.
+            // Une meilleure approche serait de recalculer le stock disponible cÃ´tÃ© serveur et de le passer.
 
             const quantiteDemandee = parseInt(quantityInput.value || 0);
 
@@ -274,12 +273,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (quantiteDemandee > 0 && articleSelect.value) {
                 if (quantiteDemandee > stockDisponible) {
-                    // Exception: si l'article est celui d'origine de la ligne et la quantité n'a pas augmenté au-delà du stock + qté origine
-                    // Cette logique est complexe à gérer purement en JS sans connaître l'ID original de l'article sur la ligne.
+                    // Exception: si l'article est celui d'origine de la ligne et la quantitÃ© n'a pas augmentÃ© au-delÃ  du stock + qtÃ© origine
+                    // Cette logique est complexe Ã  gÃ©rer purement en JS sans connaÃ®tre l'ID original de l'article sur la ligne.
                     // Pour l'instant, on se base sur le data-stock qui est le stock actuel en base.
                     // L'utilisateur ne devrait pas pouvoir commander plus que ce stock.
-                    // S'il modifie une ligne existante, la quantité ne doit pas dépasser le stock.
-                    // La validation finale se fera côté serveur.
+                    // S'il modifie une ligne existante, la quantitÃ© ne doit pas dÃ©passer le stock.
+                    // La validation finale se fera cÃ´tÃ© serveur.
                     quantityInput.classList.add('is-invalid');
                     stockInfo.textContent = `Stock insuffisant (${stockDisponible} disponible)!`;
                     stockInfo.style.color = 'red';
@@ -291,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (quantiteDemandee <= 0 && articleSelect.value) {
                  quantityInput.classList.add('is-invalid');
-                 stockInfo.textContent = `Quantité requise.`;
+                 stockInfo.textContent = `QuantitÃ© requise.`;
                  stockInfo.style.color = 'red';
                  formIsValid = false;
             } else {
@@ -300,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stockInfo.style.color = stockDisponible > 0 ? 'green' : 'red';
             }
 
-            if (prixArticle > 0 && quantiteDemandee > 0 && (quantiteDemandee <= stockDisponible || formIsValid /* Permettre si la ligne est valide malgré tout pour le calcul */) ) {
+            if (prixArticle > 0 && quantiteDemandee > 0 && (quantiteDemandee <= stockDisponible || formIsValid /* Permettre si la ligne est valide malgrÃ© tout pour le calcul */) ) {
                 totalHT += prixArticle * quantiteDemandee;
             }
         });
@@ -323,19 +322,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const newRow = document.createElement('div');
         newRow.className = 'row mb-3 article-row align-items-center';
         newRow.innerHTML = `
-            <input type="hidden" name="articles[${articleIndex}][id]" value=""> {{-- Pour les nouvelles lignes, pas d'ID existant --}}
             <div class="col-md-5">
                 <div class="form-group">
                     <label class="form-label visually-hidden">Article <span class="text-danger">*</span></label>
                     <select name="articles[${articleIndex}][article_id]" class="form-select article-select" required>
-                        <option value="" data-prix="0" data-stock="0">-- Sélectionner un article --</option>
+                        <option value="" data-prix="0" data-stock="0">-- SÃ©lectionner un article --</option>
                         @foreach($articles as $articleOption)
                             <option value="{{ $articleOption->id }}" data-prix="{{ $articleOption->prix }}" data-stock="{{ $articleOption->quantite }}">
                                 {{ $articleOption->name }} (Stock: {{ $articleOption->quantite }})
                             </option>
                         @endforeach
                     </select>
-                    <div class="invalid-feedback">Veuillez sélectionner un article.</div>
+                    <div class="invalid-feedback">Veuillez sÃ©lectionner un article.</div>
                 </div>
             </div>
             <div class="col-md-3">
@@ -346,9 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="col-md-2">
                 <div class="form-group">
-                    <label class="form-label visually-hidden">Quantité <span class="text-danger">*</span></label>
+                    <label class="form-label visually-hidden">QuantitÃ© <span class="text-danger">*</span></label>
                     <input type="number" name="articles[${articleIndex}][quantity]" class="form-control quantity-input" min="1" required value="1">
-                    <div class="invalid-feedback">La quantité est requise (min 1).</div>
+                    <div class="invalid-feedback">La quantitÃ© est requise (min 1).</div>
                     <small class="form-text text-muted stock-info"></small>
                 </div>
             </div>
@@ -381,11 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
         rows.forEach((row, idx) => {
             const removeButton = row.querySelector('.remove-article');
             if (removeButton) {
-                // Le bouton de suppression est désactivé uniquement s'il ne reste qu'une seule ligne
+                // Le bouton de suppression est dÃ©sactivÃ© uniquement s'il ne reste qu'une seule ligne
                 removeButton.disabled = rows.length === 1;
             }
         });
-         // S'il n'y a aucune ligne (ce qui ne devrait pas arriver avec la logique actuelle, mais par sécurité)
+         // S'il n'y a aucune ligne (ce qui ne devrait pas arriver avec la logique actuelle, mais par sÃ©curitÃ©)
         if (rows.length === 0) {
             submitFactureButton.disabled = true;
         }
@@ -419,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.stopPropagation();
             Swal.fire({
                 title: 'Erreur de validation',
-                text: 'Veuillez corriger les erreurs dans le formulaire avant de soumettre. Vérifiez notamment les quantités et le stock disponible, ou assurez-vous d\'avoir au moins un article valide.',
+                text: 'Veuillez corriger les erreurs dans le formulaire avant de soumettre. VÃ©rifiez notamment les quantitÃ©s et le stock disponible, ou assurez-vous d\'avoir au moins un article valide.',
                 icon: 'error',
                 confirmButtonText: 'OK'
             });
@@ -433,3 +431,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
+

@@ -1,6 +1,6 @@
 @auth
     @php
-        $unreadNotificationsCount = Auth::user()->unreadNotifications->count();
+        $unreadNotificationsCount = Auth::user()->unreadNotifications()->count();
         $recentNotifications = Auth::user()->notifications()->latest()->take(5)->get();
     @endphp
 
@@ -44,3 +44,4 @@
         </div>
     </li>
 @endauth
+

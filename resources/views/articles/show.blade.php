@@ -10,12 +10,12 @@
             {{-- Affichage de l'image principale --}}
             @if($article->imageUrl)
                 <div class="mb-4 text-center">
-                    <img src="{{ $article->imageUrl }}" alt="Image de {{ $article->name }}" class="img-fluid rounded" style="max-height: 400px; max-width: 100%;">
+                    <img src="{{ $article->imageUrl }}" alt="Image de {{ $article->name }}" class="img-fluid rounded" style="max-height: 400px; max-width: 100%;" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
                 </div>
             @elseif($article->image_principale && (str_starts_with($article->image_principale, 'http://') || str_starts_with($article->image_principale, 'https://')))
                 {{-- Fallback pour les anciennes URL directes si l'accesseur ne les gère pas comme prévu --}}
                 <div class="mb-4 text-center">
-                    <img src="{{ $article->image_principale }}" alt="Image de {{ $article->name }}" class="img-fluid rounded" style="max-height: 400px; max-width: 100%;">
+                    <img src="{{ $article->image_principale }}" alt="Image de {{ $article->name }}" class="img-fluid rounded" style="max-height: 400px; max-width: 100%;" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
                 </div>
             @else
                 <div class="mb-4 text-center text-muted">

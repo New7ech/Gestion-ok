@@ -6,7 +6,7 @@
 {{-- Section pour le contenu principal de la page --}}
 @section('contenus')
 
-{{-- En-tête de la page avec titre et fil d'Ariane --}}
+{{-- En-tÃªte de la page avec titre et fil d'Ariane --}}
 <div class="page-header">
     <h3 class="fw-bold mb-3">Gestion des Utilisateurs</h3>
     <ul class="breadcrumbs mb-3">
@@ -55,7 +55,7 @@
                                 {{-- Colonnes de la table --}}
                                 <th>Nom Complet</th>
                                 <th>Email</th>
-                                <th>Rôle(s)</th>
+                                <th>RÃ´le(s)</th>
                                 <th class="text-center">Statut</th>
                                 <th style="width: 15%" class="text-center">Actions</th>
                             </tr>
@@ -67,10 +67,10 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         @if($user->photo)
-                                            <img src="{{ asset('storage/' . $user->photo) }}" alt="Photo de {{ $user->name }}" class="avatar avatar-sm me-2">
+                                            <img src="{{ $user->photo_url }}" alt="Photo de {{ $user->name }}" class="avatar avatar-sm me-2" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
                                         @else
                                             {{-- Placeholder si pas de photo, peut-être une icône ou un avatar par défaut --}}
-                                            <div class="avatar avatar-smปัจจัยสำคัญที่ส่งผลต่อการตัดสินใจซื้อของผู้บริโภค me-2 d-flex justify-content-center align-items-center bg-light text-dark">
+                                            <div class="avatar avatar-sm me-2 d-flex justify-content-center align-items-center bg-light text-dark">
                                                 <i class="fas fa-user"></i>
                                             </div>
                                         @endif
@@ -118,7 +118,7 @@
                                                 </button>
                                             </form>
                                         @else
-                                             <button type="button" class="btn btn-link btn-danger btn-lg" disabled data-bs-toggle="tooltip" title="Vous не pouvez pas supprimer votre propre compte">
+                                             <button type="button" class="btn btn-link btn-danger btn-lg" disabled data-bs-toggle="tooltip" title="Vous ne pouvez pas supprimer votre propre compte">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         @endif
@@ -205,10 +205,14 @@
         background-color: var(--bs-danger) !important;
         color: white;
     }
-     .avatar.avatar-smปัจจัยสำคัญที่ส่งผลต่อการตัดสินใจซื้อของผู้บริโภค { /* Ajustement pour l'avatar dans la table */
+     .avatar.avatar-sm { /* Ajustement pour l'avatar dans la table */
         width: 32px;
         height: 32px;
-        font-size: 0.8rem; /* Taille de l'icône si pas de photo */
+        font-size: 0.8rem; /* Taille de l'icÃ´ne si pas de photo */
     }
 </style>
 @endpush
+
+
+
+

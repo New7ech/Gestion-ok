@@ -6,23 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCategorieRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        // On récupère l'ID de la catégorie depuis la route pour l'ignorer lors de la validation de l'unicité
-        $categoryId = $this->route('category') ? $this->route('category')->id : $this->route('categorie.id');
+        $categoryId = $this->route('categorie')?->id;
 
         return [
             'name' => 'required|string|max:255|unique:categories,name,' . $categoryId,
@@ -30,11 +21,6 @@ class UpdateCategorieRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array
-     */
     public function messages(): array
     {
         return [
@@ -47,3 +33,4 @@ class UpdateCategorieRequest extends FormRequest
         ];
     }
 }
+

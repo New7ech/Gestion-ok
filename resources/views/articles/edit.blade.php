@@ -118,7 +118,7 @@
                         @if ($article->image_principale)
                             <div class="mt-2">
                                 <label>Image actuelle :</label><br>
-                                <img src="{{ $article->imageUrl }}" alt="Image actuelle de {{ $article->name }}" style="max-width: 200px; max-height: 200px; border-radius: 5px;">
+                                <img src="{{ $article->imageUrl }}" alt="Image actuelle de {{ $article->name }}" style="max-width: 200px; max-height: 200px; border-radius: 5px;" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
                                 <div class="form-check mt-1">
                                     <input class="form-check-input" type="checkbox" name="supprimer_image_principale" id="supprimer_image_principale" value="1">
                                     <label class="form-check-label" for="supprimer_image_principale">

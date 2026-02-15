@@ -48,7 +48,7 @@
                     {{-- Colonne pour la photo de profil --}}
                     <div class="col-md-3 text-center mb-4 mb-md-0">
                         @if($user->photo)
-                            <img src="{{ asset('storage/' . $user->photo) }}" alt="Photo de {{ $user->name }}"
+                            <img src="{{ $user->photo_url }}" alt="Photo de {{ $user->name }}" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';"
                                  class="img-fluid rounded-circle shadow-sm" style="width: 180px; height: 180px; object-fit: cover;">
                         @else
                             {{-- Avatar par défaut de KaiAdmin --}}

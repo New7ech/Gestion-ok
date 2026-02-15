@@ -2,23 +2,33 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     image: laravel-app:dev
     working_dir: /var/www
-    user: "1000:1000"  # Utilise l'UID/GID de l'utilisateur hôte
     volumes:
       - .:/var/www
       - vendor:/var/www/vendor
       - node_modules:/var/www/node_modules
     env_file:
       - .env
-    command: >
-      bash -c "php artisan migrate --force || true && php artisan db:seed --force || true && php-fpm"
+    environment:
+      APP_URL: ${DOCKER_APP_URL:-http://localhost:8000}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE:-laravel}
+      DB_USERNAME: ${MYSQL_USER:-laravel}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-secret}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      SESSION_DRIVER: file
     depends_on:
       mysql:
-        condition: service_healthy # Attendre que MySQL soit prêt
+        condition: service_healthy
       redis:
-        condition: service_started # Peut être service_healthy si redis a un healthcheck
+        condition: service_healthy
     networks:
       - app-network
 
@@ -37,19 +47,20 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-laravel}
+      MYSQL_USER: ${MYSQL_USER:-laravel}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
     volumes:
       - mysql_data_dev:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
     networks:
       - app-network
 
@@ -60,7 +71,7 @@ services:
       - redis_data_dev:/data
     ports:
       - "6379:6379"
-    healthcheck: # Ajout d'un healthcheck simple pour Redis
+    healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
@@ -81,7 +92,7 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_USER: root
-      PMA_PASSWORD: secret
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret}
     ports:
       - "8081:80"
     depends_on:

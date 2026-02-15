@@ -67,9 +67,14 @@
                             <tr>
                                 <td>
                                     @if($article->imageUrl)
-                                        <img src="{{ $article->imageUrl }}" alt="Image de {{ $article->name }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
+                                        <div class="article-image-container">
+                                            <img src="{{ $article->imageUrl }}" alt="Image de {{ $article->name }}" class="img-thumbnail" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';">
+                                        </div>
                                     @else
-                                        <span class="text-muted" style="display: inline-block; width: 70px; height: 70px; line-height: 70px; text-align: center; border: 1px solid #ddd; border-radius: .25rem;">Pas d'image</span>
+                                        <div class="no-image-placeholder">
+                                            <i class="fas fa-image"></i>
+                                            <span>Pas d'image</span>
+                                        </div>
                                     @endif
                                 </td>
                                 <td>{{ $article->name }}</td>

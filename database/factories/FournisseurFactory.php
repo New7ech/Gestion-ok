@@ -7,25 +7,20 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FournisseurFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Fournisseur::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company,
-            'telephone' => $this->faker->phoneNumber,
-            'email' => $this->faker->unique()->safeEmail,
-            'adresse' => $this->faker->address,
+            'name' => $this->faker->name(),
+            'description' => $this->faker->sentence(),
+            'nom_entreprise' => $this->faker->company(),
+            'adresse' => $this->faker->address(),
+            'telephone' => $this->faker->unique()->numerify('+###########'),
+            'email' => $this->faker->unique()->safeEmail(),
+            'ville' => $this->faker->city(),
+            'pays' => $this->faker->country(),
         ];
     }
 }
+

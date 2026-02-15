@@ -4,17 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Fournisseur extends Model
 {
     use HasFactory;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+
     protected $table = 'fournisseurs';
-    protected $primaryKey = 'id';
+
     protected $fillable = [
         'name',
         'description',
@@ -24,5 +21,20 @@ class Fournisseur extends Model
         'email',
         'ville',
         'pays',
+        'photo',
     ];
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'fournisseur_id');
+    }
+
+    public function getPhotoUrlAttribute()
+    {
+        if ($this->photo) {
+            return asset('storage/' . $this->photo);
+        }
+        return asset('assets/img/profile.jpg');
+    }
 }
+

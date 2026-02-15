@@ -2,229 +2,128 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request; // Garder pour la méthode index
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Storage; // Ajouté pour la suppression de photo
-
-// Commentés car non utilisés par Route::resource et potentiellement gérés par Fortify/Laravel UI
-// use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller
 {
-    /**
-     * Affiche une liste des utilisateurs.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        // TODO: Ajouter la recherche et le filtrage
-        $users = User::with('roles')->latest()->paginate(10); // Charge les utilisateurs avec leurs rôles et pagine
+        $search = $request->input('search');
+
+        $users = User::query()
+            ->with('roles')
+            ->when($search, function ($query, $term) {
+                $query->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%")
+                    ->orWhere('phone', 'like', "%{$term}%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Affiche le formulaire de création d'un nouvel utilisateur.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
+    public function create(): View
     {
-        $roles = Role::pluck('name', 'id'); // Récupère les rôles pour le formulaire (id => name)
-        // $modules = ['sales', 'inventory', 'hr', 'finance']; // Exemple, à adapter si nécessaire
-        return view('users.create', compact('roles' /*, 'modules'*/));
+        $roles = Role::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('users.create', compact('roles'));
     }
 
-    /**
-     * Enregistre un nouvel utilisateur dans la base de données.
-     *
-     * @param \App\Http\Requests\StoreUserRequest $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): RedirectResponse
     {
         $validatedData = $request->validated();
+
+        $role = Role::query()->findOrFail($validatedData['role_id']);
+        unset($validatedData['role_id']);
+
         $validatedData['password'] = Hash::make($validatedData['password']);
+        $validatedData['status'] = $request->boolean('status', true);
 
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('users/photos', 'public');
-            $validatedData['photo'] = $path;
+            $validatedData['photo'] = $request->file('photo')->store('users/photos', 'public');
         }
 
         $user = User::create($validatedData);
+        $user->syncRoles([$role->name]);
 
-        if (!empty($request->roles)) {
-            $user->syncRoles($request->roles);
-        }
-
-        return redirect()->route('users.index')
+        return redirect()
+            ->route('users.index')
             ->with('success', 'Utilisateur créé avec succès.');
     }
 
-    /**
-     * Affiche l'utilisateur spécifié.
-     *
-     * @param \App\Models\User $user
-     * @return \Illuminate\View\View
-     */
-    public function show(User $user)
+    public function show(User $user): View
     {
-        $user->load('roles'); // S'assurer que les rôles sont chargés
+        $user->load('roles');
+
         return view('users.show', compact('user'));
     }
 
-    /**
-     * Affiche le formulaire de modification de l'utilisateur spécifié.
-     *
-     * @param \App\Models\User $user
-     * @return \Illuminate\View\View
-     */
-    public function edit(User $user)
+    public function edit(User $user): View
     {
-        $roles = Role::pluck('name', 'id');
-        $user->load('roles'); // Charger les rôles actuels de l'utilisateur
+        $roles = Role::query()->orderBy('name')->get(['id', 'name']);
+        $user->load('roles');
+
         return view('users.edit', compact('user', 'roles'));
     }
 
-    /**
-     * Met à jour l'utilisateur spécifié dans la base de données.
-     *
-     * @param \App\Http\Requests\UpdateUserRequest $request
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $validatedData = $request->validated();
 
-        if (!empty($validatedData['password'])) {
+        $role = Role::query()->findOrFail($validatedData['role_id']);
+        unset($validatedData['role_id']);
+
+        if (! empty($validatedData['password'])) {
             $validatedData['password'] = Hash::make($validatedData['password']);
         } else {
-            unset($validatedData['password']); // Ne pas mettre à jour le mot de passe s'il est vide
+            unset($validatedData['password']);
         }
 
+        $validatedData['status'] = $request->boolean('status', false);
+
         if ($request->hasFile('photo')) {
-            // Supprimer l'ancienne photo si elle existe
             if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
-            $path = $request->file('photo')->store('users/photos', 'public');
-            $validatedData['photo'] = $path;
+
+            $validatedData['photo'] = $request->file('photo')->store('users/photos', 'public');
         }
 
         $user->update($validatedData);
+        $user->syncRoles([$role->name]);
 
-        if (!empty($request->roles)) {
-            $user->syncRoles($request->roles);
-        } else {
-            // Si aucun rôle n'est soumis, potentiellement les supprimer tous
-            // ou laisser tel quel selon la logique métier désirée.
-            // Pour l'instant, on ne fait rien si $request->roles est vide,
-            // ce qui signifie que les rôles existants sont conservés.
-            // Si on veut supprimer tous les rôles si aucun n'est coché :
-            // $user->syncRoles([]);
-        }
-
-        return redirect()->route('users.index')
+        return redirect()
+            ->route('users.index')
             ->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
-    /**
-     * Supprime l'utilisateur spécifié de la base de données.
-     *
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
-        // TODO: Ajouter une vérification pour ne pas se supprimer soi-même ou le dernier admin
-        // Supprimer la photo de l'utilisateur si elle existe
+        if (auth()->id() === $user->id) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+        }
+
         if ($user->photo && Storage::disk('public')->exists($user->photo)) {
             Storage::disk('public')->delete($user->photo);
         }
+
         $user->delete();
 
-        return redirect()->route('users.index')
+        return redirect()
+            ->route('users.index')
             ->with('success', 'Utilisateur supprimé avec succès.');
     }
-
-    // Les méthodes assignRole, removeRole, checkRole sont généralement gérées
-    // par la logique de synchronisation des rôles dans store/update avec Spatie.
-    // Si une gestion plus granulaire est nécessaire via des routes dédiées, elles peuvent être conservées.
-    // Pour l'instant, je les commente car Route::resource ne les crée pas par défaut.
-
-    /*
-    // Méthode pour assigner un rôle à un utilisateur
-    public function assignRole(Request $request, User $user)
-    {
-        $request->validate([
-            'role' => 'required|exists:roles,name',
-        ]);
-
-        $user->assignRole($request->role);
-
-        return redirect()->route('users.index')
-            ->with('success', 'Rôle assigné avec succès.');
-    }
-
-    // Méthode pour retirer un rôle d'un utilisateur
-    public function removeRole(Request $request, User $user)
-    {
-        $request->validate([
-            'role' => 'required|exists:roles,name',
-        ]);
-
-        $user->removeRole($request->role);
-
-        return redirect()->route('users.index')
-            ->with('success', 'Rôle retiré avec succès.');
-    }
-
-    // Méthode pour vérifier si un utilisateur a un rôle
-    public function checkRole(User $user)
-    {
-        // Exemple: vérifier si l'utilisateur a le rôle 'admin'
-        // $hasRole = $user->hasRole('admin');
-        // return response()->json(['hasRole' => $hasRole]);
-        // Cette méthode est plus pour une vérification API, pas typique pour un CRUD web.
-    }
-    */
-
-    /*
-    // Méthodes de connexion/déconnexion.
-    // Laravel UI ou Fortify gèrent généralement cela.
-    // Si c'est une authentification personnalisée, ces routes doivent être définies.
-    // Pour l'instant, commentées car Route::resource ne les gère pas.
-
-    public function connexion(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->intended('/')
-                ->with('success', 'Vous êtes connecté avec succès.');
-        }
-
-        return back()->withErrors([
-            'email' => 'Les informations d\'identification fournies ne correspondent pas à nos enregistrements.',
-        ]);
-    }
-
-    public function deconnexion()
-    {
-        Session::flush();
-        Auth::logout();
-        return redirect()->route('login')
-            ->with('success', 'Vous êtes déconnecté avec succès.');
-    }
-    */
 }
+

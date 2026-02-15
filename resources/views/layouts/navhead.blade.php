@@ -30,7 +30,7 @@
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                         {{-- Affiche la photo de profil de l'utilisateur. Si absente, affiche un avatar par défaut. --}}
-                        <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : asset('assets/img/profile.jpg') }}" alt="Image de Profil" class="avatar-img rounded-circle" />
+                        <img src="{{ Auth::user()->photo_url }}" alt="Image de Profil" class="avatar-img rounded-circle" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';" />
                     </div>
                     <span class="profile-username">
                         {{-- Affiche le nom de l'utilisateur connecté --}}
@@ -45,7 +45,7 @@
                             <div class="user-box d-flex align-items-center">
                                 <div class="avatar-lg me-3">
                                      {{-- Affiche une version plus grande de la photo de profil --}}
-                                     <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : asset('assets/img/profile.jpg') }}" alt="Image de Profil" class="avatar-img rounded" />
+                                     <img src="{{ Auth::user()->photo_url }}" alt="Image de Profil" class="avatar-img rounded" onerror="this.onerror=null;this.src='{{ asset('assets/img/profile.jpg') }}';" />
                                 </div>
                                 <div class="u-text">
                                     {{-- Nom et email de l'utilisateur --}}
@@ -67,15 +67,17 @@
                             </a>
                             <div class="dropdown-divider"></div>
                             {{-- Lien de déconnexion --}}
-                            <a class="dropdown-item" href="{{ route('logout') }}"
-                               onclick="event.preventDefault();
-                                        document.getElementById('logout-form').submit();">
-                               <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
-                            </a>
-                            {{-- Formulaire de déconnexion (caché, soumis via JavaScript) --}}
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
+                            @if (Route::has('logout'))
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault();
+                                            document.getElementById('logout-form').submit();">
+                                   <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                                </a>
+                                {{-- Formulaire de déconnexion (caché, soumis via JavaScript) --}}
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
+                            @endif
                         </li>
                     </div>
                 </ul>

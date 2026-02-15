@@ -67,7 +67,7 @@
                 </div>
 
                 <div class="form-group form-group-default">
-                    <label>Adresse Postale</label>
+                    <label>Adresse</label>
                     <p class="form-control-static">{{ $fournisseur->adresse ?: 'N/A' }}</p>
                 </div>
 

@@ -5,96 +5,71 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEmplacementRequest;
 use App\Http\Requests\UpdateEmplacementRequest;
 use App\Models\Emplacement;
-use Illuminate\Http\Request; // Ajouté pour la méthode index
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class EmplacementController extends Controller
 {
-    /**
-     * Affiche une liste des ressources.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        // TODO: Ajouter la recherche et la pagination ici si nécessaire
-        $emplacements = Emplacement::latest()->paginate(10); // Pagination ajoutée
+        $search = $request->input('search');
+
+        $emplacements = Emplacement::query()
+            ->when($search, fn ($query, $term) => $query->where('name', 'like', "%{$term}%"))
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('emplacements.index', compact('emplacements'));
     }
 
-    /**
-     * Affiche le formulaire de création d'une nouvelle ressource.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
+    public function create(): View
     {
         return view('emplacements.create');
     }
 
-    /**
-     * Enregistre une nouvelle ressource dans la base de données.
-     *
-     * @param  \App\Http\Requests\StoreEmplacementRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(StoreEmplacementRequest $request)
+    public function store(StoreEmplacementRequest $request): RedirectResponse
     {
         Emplacement::create($request->validated());
 
-        return redirect()->route('emplacements.index')
+        return redirect()
+            ->route('emplacements.index')
             ->with('success', 'Emplacement créé avec succès.');
     }
 
-    /**
-     * Affiche la ressource spécifiée.
-     *
-     * @param  \App\Models\Emplacement  $emplacement
-     * @return \Illuminate\View\View
-     */
-    public function show(Emplacement $emplacement)
+    public function show(Emplacement $emplacement): View
     {
         return view('emplacements.show', compact('emplacement'));
     }
 
-    /**
-     * Affiche le formulaire de modification de la ressource spécifiée.
-     *
-     * @param  \App\Models\Emplacement  $emplacement
-     * @return \Illuminate\View\View
-     */
-    public function edit(Emplacement $emplacement)
+    public function edit(Emplacement $emplacement): View
     {
         return view('emplacements.edit', compact('emplacement'));
     }
 
-    /**
-     * Met à jour la ressource spécifiée dans la base de données.
-     *
-     * @param  \App\Http\Requests\UpdateEmplacementRequest  $request
-     * @param  \App\Models\Emplacement  $emplacement
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(UpdateEmplacementRequest $request, Emplacement $emplacement)
+    public function update(UpdateEmplacementRequest $request, Emplacement $emplacement): RedirectResponse
     {
         $emplacement->update($request->validated());
 
-        return redirect()->route('emplacements.index')
+        return redirect()
+            ->route('emplacements.index')
             ->with('success', 'Emplacement mis à jour avec succès.');
     }
 
-    /**
-     * Supprime la ressource spécifiée de la base de données.
-     *
-     * @param  \App\Models\Emplacement  $emplacement
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy(Emplacement $emplacement)
+    public function destroy(Emplacement $emplacement): RedirectResponse
     {
-        // TODO: Vérifier si l'emplacement est utilisé par des articles avant de supprimer
+        if ($emplacement->articles()->exists()) {
+            return redirect()
+                ->route('emplacements.index')
+                ->with('error', 'Suppression impossible: cet emplacement est utilisé par des articles.');
+        }
+
         $emplacement->delete();
 
-        return redirect()->route('emplacements.index')
+        return redirect()
+            ->route('emplacements.index')
             ->with('success', 'Emplacement supprimé avec succès.');
     }
 }
+

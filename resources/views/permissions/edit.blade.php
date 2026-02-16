@@ -3,6 +3,7 @@
 @section('title', "Modifier la Permission : " . $permission->name)
 
 @section('contenus')
+<div class="page-inner">
 <div class="page-header">
     <h3 class="fw-bold mb-3">Gestion des Acces</h3>
     <ul class="breadcrumbs mb-3">
@@ -82,6 +83,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
 

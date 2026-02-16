@@ -173,12 +173,15 @@
 
     <!-- Kaiadmin CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}">
-
+    
     <!-- Custom CSS for article images -->
     <link rel="stylesheet" href="{{ asset('css/article-images.css') }}">
-
+    
     <!-- Enhanced Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('css/dashboard-enhanced.css') }}">
+    
+    <!-- Page Header Fix CSS -->
+    <link rel="stylesheet" href="{{ asset('css/page-header-fix.css') }}">
 
     <!-- Kaiadmin JS -->
     <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>

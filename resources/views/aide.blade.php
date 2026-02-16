@@ -8,6 +8,7 @@
 
 {{-- En-tête de la page avec titre et fil d'Ariane --}}
 <div class="page-header">
+<div class="page-header">
     <h3 class="fw-bold mb-3">Centre d'Aide</h3>
     <ul class="breadcrumbs mb-3">
         <li class="nav-home">
@@ -123,6 +124,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
 

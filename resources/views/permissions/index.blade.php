@@ -7,6 +7,7 @@
 @section('contenus')
 
 {{-- En-tête de la page avec titre et fil d'Ariane --}}
+<div class="page-inner">
 <div class="page-header">
     <h3 class="fw-bold mb-3">Gestion des Accès</h3>
     <ul class="breadcrumbs mb-3">
@@ -101,7 +102,7 @@
         </div>
     </div>
 </div>
-
+</div>
 @endsection
 
 {{-- Section pour les scripts JavaScript spécifiques à cette page --}}

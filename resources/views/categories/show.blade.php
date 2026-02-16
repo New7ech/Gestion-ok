@@ -3,6 +3,7 @@
 @section('title', "Catégorie : " . $categorie->name)
 
 @section('contenus')
+<div class="page-inner">
 <div class="page-header">
     <h3 class="fw-bold mb-3">Détail Catégorie</h3>
     <ul class="breadcrumbs mb-3">
@@ -29,5 +30,6 @@
         <a href="{{ route('categories.edit', $categorie) }}" class="btn btn-warning">Modifier</a>
         <a href="{{ route('categories.index') }}" class="btn btn-secondary">Retour</a>
     </div>
+</div>
 </div>
 @endsection

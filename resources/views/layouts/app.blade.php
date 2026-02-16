@@ -173,10 +173,10 @@
 
     <!-- Kaiadmin CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}">
-    
+
     <!-- Custom CSS for article images -->
     <link rel="stylesheet" href="{{ asset('css/article-images.css') }}">
-    
+
     <!-- Enhanced Dashboard CSS -->
     <link rel="stylesheet" href="{{ asset('css/dashboard-enhanced.css') }}">
 

@@ -23,7 +23,7 @@
 
     <!-- Statistiques principales -->
     <div class="row">
-      <div class="col-sm-6 col-md-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -42,7 +42,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
+      {{-- <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -60,8 +60,8 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-sm-6 col-md-3">
+      </div> --}}
+      <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -80,7 +80,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -103,7 +103,7 @@
 
     <!-- Statistiques supplémentaires -->
     <div class="row mt-4">
-      <div class="col-sm-6 col-md-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -122,7 +122,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
+      <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -141,7 +141,26 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6 col-md-3">
+      <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-icon">
+                <div class="icon-big text-center icon-info bubble-shadow-small">
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+              </div>
+              <div class="col col-stats ms-3 ms-sm-0">
+                <div class="numbers">
+                  <p class="card-category">Montant Total</p>
+                  <h4 class="card-title">{{ number_format($montantTotal, 0, ',', ' ') }} FCFA</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{-- <div class="col-sm-6 col-md-4">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -159,8 +178,8 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-sm-6 col-md-3">
+      </div> --}}
+      {{-- <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
           <div class="card-body">
             <div class="row align-items-center">
@@ -178,7 +197,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> --}}
     </div>
     <div class="row">
       <div class="col-md-8">
@@ -245,8 +264,13 @@
             <p class="text-muted">Factures ce mois-ci</p>
             <div class="pull-in sparkline-fix">
               <div id="lineChart"></div>
+            </div>
+           </div>
+        </div>
       </div>
-      <div class="col-md-4">
+    </div>
+    <div class="row">
+      <div class="col-md-12">
         <div class="card card-round">
           <div class="card-header">
             <div class="card-head-row card-tools-still-right">

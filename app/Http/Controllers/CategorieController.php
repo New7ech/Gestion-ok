@@ -31,7 +31,10 @@ class CategorieController extends Controller
 
     public function store(StoreCategorieRequest $request): RedirectResponse
     {
-        Categorie::create($request->validated());
+        Categorie::create(array_merge($request->validated(), [
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
+        ]));
 
         return redirect()
             ->route('categories.index')
@@ -50,7 +53,9 @@ class CategorieController extends Controller
 
     public function update(UpdateCategorieRequest $request, Categorie $categorie): RedirectResponse
     {
-        $categorie->update($request->validated());
+        $categorie->update(array_merge($request->validated(), [
+            'updated_by' => auth()->id(),
+        ]));
 
         return redirect()
             ->route('categories.index')

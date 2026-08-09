@@ -16,7 +16,7 @@ Guide simple pour lancer le projet en local sur Windows 11 avec Docker Desktop.
 
 URLs:
 
-- Application: `http://localhost:8000`
+- Application: `http://localhost:8080`
 - phpMyAdmin: `http://localhost:8081`
 - MailHog: `http://localhost:8025`
 
@@ -49,4 +49,13 @@ docker compose ps
 docker compose logs app --tail=100
 docker compose logs mysql --tail=100
 ```
+Tes identifiants ont été recréés dans la base locale :
+Admin
+Email : admin@gestion.local
+Mot de passe : Admin@1234
 
+Manager
+Email : manager@gestion.local
+Mot de passe : Manager@1234
+Ouvre l’application ici :
+http://localhost:8080/login

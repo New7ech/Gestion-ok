@@ -114,7 +114,7 @@ Write-Step "Etat des services"
 docker compose ps
 
 Write-Host "`nInstallation terminee." -ForegroundColor Green
-Write-Host "Application : http://localhost:8000"
+Write-Host "Application : http://localhost:8080"
 Write-Host "phpMyAdmin  : http://localhost:8081"
 Write-Host "MailHog     : http://localhost:8025"
 Write-Host "`nIdentifiants DB Docker (defaut):"

@@ -29,6 +29,6 @@ if ($LASTEXITCODE -ne 0) {
 
 docker compose ps
 
-Write-Host "`nApplication : http://localhost:8000"
+Write-Host "`nApplication : http://localhost:8080"
 Write-Host "phpMyAdmin  : http://localhost:8081"
 Write-Host "MailHog     : http://localhost:8025"

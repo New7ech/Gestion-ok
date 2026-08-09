@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Categorie;
 use App\Models\Facture;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StatistiqueController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         // 1. totalArticlesInStock
         $totalArticlesInStock = Article::sum('quantite');
@@ -22,8 +23,8 @@ class StatistiqueController extends Controller
         $articlesPerCategoryData = $categories->pluck('articles_count')->toArray();
 
         // 3. lowStockArticles
-        $lowStockThreshold = 10;
-        $lowStockArticles = Article::where('quantite', '<', $lowStockThreshold)
+        $lowStockThreshold = Facture::LOW_STOCK_THRESHOLD;
+        $lowStockArticles = Article::where('quantite', '<=', $lowStockThreshold)
                                    ->select('name', 'quantite')
                                    ->orderBy('quantite', 'asc')
                                    ->get();

@@ -168,7 +168,7 @@
                                 @foreach($articlesRecents as $article)
                                 <tr>
                                     <td>{{ $article->name }}</td>
-                                    <td>{{ $article->category->name ?? 'N/A' }}</td>
+                                    <td>{{ $article->categorie->name ?? 'N/A' }}</td>
                                     <td class="text-end fw-bold {{ $article->quantite <= ($seuilStockFaible ?? 5) ? 'text-danger' : '' }}">{{ $article->quantite }}</td>
                                     <td class="text-center">{{ $article->updated_at->diffForHumans() }}</td>
                                     <td class="text-center">

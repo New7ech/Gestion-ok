@@ -29,12 +29,12 @@ class Fournisseur extends Model
         return $this->hasMany(Article::class, 'fournisseur_id');
     }
 
-    public function getPhotoUrlAttribute()
+    public function getPhotoUrlAttribute(): string
     {
-        if ($this->photo) {
-            return asset('storage/' . $this->photo);
+        if (empty($this->photo)) {
+            return asset('assets/img/profile.jpg');
         }
-        return asset('assets/img/profile.jpg');
+
+        return asset('storage/' . ltrim($this->photo, '/'));
     }
 }
-

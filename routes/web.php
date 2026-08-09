@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\EmplacementController;
 use App\Http\Controllers\FactureController;
@@ -14,34 +15,50 @@ use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
+// ----- Authentification -----
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
 
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
+// ----- Médias publics (hors auth pour les assets) -----
 Route::get('/media/public/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.public');
 
-//la gestion des utilisateurs
-Route::resource('users', UserController::class);
-Route::resource('roles', RoleController::class);
-Route::resource('permissions', PermissionController::class);
-Route::resource('categories', CategorieController::class);
-Route::resource('fournisseurs', FournisseurController::class);
-Route::resource('emplacements',EmplacementController::class);
-Route::resource('articles', ArticleController::class);
-Route::resource('factures', FactureController::class);
-Route::get('/', [AccueilController::class, 'index'])->name('accueil');
+// ----- Routes protégées -----
+Route::middleware(['auth'])->group(function () {
 
-Route::get('/factures/{facture}/pdf', [FactureController::class, 'genererPdf'])->name('factures.pdf');
-Route::get('/statistiques', [StatistiqueController::class, 'index'])->name('statistiques.index');
+    // Tableau de bord
+    Route::get('/', [AccueilController::class, 'index'])->name('accueil');
 
-// Notification routes
-Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
-Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    // Statistiques
+    Route::get('/statistiques', [StatistiqueController::class, 'index'])->name('statistiques.index');
 
+    // Catalogue & Stock
+    Route::resource('articles', ArticleController::class);
+    Route::resource('categories', CategorieController::class);
+    Route::resource('emplacements', EmplacementController::class);
+    Route::resource('fournisseurs', FournisseurController::class);
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+    // Facturation
+    Route::resource('factures', FactureController::class);
+    Route::get('/factures/{facture}/pdf', [FactureController::class, 'genererPdf'])->name('factures.pdf');
 
+    // Administration (réservée aux rôles disposant des permissions de gestion)
+    Route::middleware('role:super_admin|manager')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
+    });
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+});

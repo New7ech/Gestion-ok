@@ -111,6 +111,7 @@ class ArticleController extends Controller
                 ->store('articles_images', 'public');
         }
 
+        $validatedData['updated_by'] = auth()->id();
         $article->update($validatedData);
 
         return redirect()

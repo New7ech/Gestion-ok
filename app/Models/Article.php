@@ -30,6 +30,7 @@ class Article extends Model
         'fournisseur_id',
         'emplacement_id',
         'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -92,7 +93,12 @@ class Article extends Model
         return $this->belongsTo(Emplacement::class, 'emplacement_id');
     }
 
-    public function user(): BelongsTo
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Categorie::class, 'category_id');
+    }
+
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }

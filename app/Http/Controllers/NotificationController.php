@@ -11,19 +11,16 @@ class NotificationController extends Controller
 {
     public function index(): View
     {
-        abort_unless(Auth::check(), 403);
-
         $notifications = Auth::user()
             ->notifications()
             ->latest()
-            ->paginate(10);
+            ->paginate(15);
 
         return view('notifications.index', compact('notifications'));
     }
 
     public function show(DatabaseNotification $notification): View
     {
-        abort_unless(Auth::check(), 403);
         abort_unless(Auth::id() === (int) $notification->notifiable_id, 403);
 
         $notification->markAsRead();
@@ -33,7 +30,6 @@ class NotificationController extends Controller
 
     public function markAsRead(DatabaseNotification $notification): RedirectResponse
     {
-        abort_unless(Auth::check(), 403);
         abort_unless(Auth::id() === (int) $notification->notifiable_id, 403);
 
         $notification->markAsRead();
@@ -43,11 +39,8 @@ class NotificationController extends Controller
 
     public function markAllAsRead(): RedirectResponse
     {
-        abort_unless(Auth::check(), 403);
-
         Auth::user()->unreadNotifications->markAsRead();
 
         return redirect()->back()->with('success', 'Toutes les notifications ont été marquées comme lues.');
     }
 }
-
